@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코플리 (Copley) - 코인노래방 플레이리스트</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #0c0e14; color: #f8fafc; }
+        .tj-orange-gradient { background: linear-gradient(135deg, #ea580c 0%, #c2410c 50%, #f59e0b 100%); }
+        .tj-orange-glow { box-shadow: 0 0 25px rgba(234, 88, 12, 0.35); }
+        .tj-card { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(249, 115, 22, 0.25); }
+        ::-webkit-scrollbar { height: 4px; width: 4px; }
+        ::-webkit-scrollbar-track { background: #0c0e14; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-28">
+
+    <!-- Header -->
+    <header class="w-full max-w-md bg-[#0c0e14]/95 sticky top-0 z-50 px-4 py-3 flex items-center justify-between border-b border-orange-500/30 backdrop-blur">
+        <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-xl tj-orange-gradient flex items-center justify-center tj-orange-glow">
+                <i class="fa-solid fa-microphone-lines text-white text-sm"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-base tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">코플리</h1>
+                <p class="text-[10px] text-slate-400 font-medium">COPLEY : Coin Karaoke Playlist</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <!-- 🔍 Search Button (Lyrics & TJ Number) -->
+            <button onclick="openSearchModal()" class="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-orange-400 flex items-center justify-center border border-orange-500/30 transition shadow" title="가사 및 곡 검색">
+                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+            </button>
+            <!-- 👤 My Menu Button -->
+            <button onclick="toggleMyMenuDrawer(true)" class="w-9 h-9 rounded-xl bg-orange-600/30 hover:bg-orange-600/50 text-orange-300 flex items-center justify-center border border-orange-500/40 transition shadow" title="마이메뉴 & 플리">
+                <i class="fa-solid fa-user text-xs"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs (6 Tabs, No numbers) -->
+    <nav class="w-full max-w-md bg-[#0c0e14]/90 px-3 py-2 flex space-x-2 border-b border-slate-800/80 text-xs overflow-x-auto whitespace-nowrap sticky top-[57px] z-40">
+        <button onclick="switchTab('highlight')" id="tab-btn-highlight" class="tab-btn px-3.5 py-1.5 rounded-lg font-bold text-orange-400 bg-orange-600/20 border border-orange-500/40 transition">하이라이트 듣기</button>
+        <button onclick="switchTab('collab')" id="tab-btn-collab" class="tab-btn px-3.5 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition">함께 만들기</button>
+        <button onclick="switchTab('scanner')" id="tab-btn-scanner" class="tab-btn px-3.5 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition">AI 스캐너</button>
+        <button onclick="switchTab('matching')" id="tab-btn-matching" class="tab-btn px-3.5 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition">유저 추천</button>
+        <button onclick="switchTab('ending')" id="tab-btn-ending" class="tab-btn px-3.5 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition">막곡 추천</button>
+        <button onclick="switchTab('karaoke')" id="tab-btn-karaoke" class="tab-btn px-3.5 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition">노래방 정보</button>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="w-full max-w-md p-4 flex-1 space-y-4">
+
+        <!-- 1. 하이라이트 듣기 Tab (TJ 최신 인기차트) -->
+        <section id="tab-content-highlight" class="tab-pane space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-xs text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <i class="fa-solid fa-bolt text-amber-400"></i> TJ 최신 인기차트 플리
+                </h2>
+                <button onclick="toggleOfflineMode()" id="offline-badge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition">
+                    <i class="fa-solid fa-wifi"></i> Data Free Ready
+                </button>
+            </div>
+
+            <div id="playlist-container" class="space-y-3">
+                <!-- Dynamic Playlist items -->
+            </div>
+        </section>
+
+        <!-- 2. 함께 만들기 Tab (Collaborative Playlist) -->
+        <section id="tab-content-collab" class="tab-pane space-y-4 hidden">
+            <div class="tj-card p-4 rounded-2xl border border-orange-500/30 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-orange-600/30 text-orange-400 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-users-rectangle"></i>
+                        </div>
+                        <h2 class="font-bold text-sm text-orange-300">실시간 협업 플레이리스트</h2>
+                    </div>
+                    <button onclick="shareCollabLink()" class="bg-orange-600 hover:bg-orange-500 text-white text-[10px] px-2.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1 shadow">
+                        <i class="fa-solid fa-share-nodes"></i> 친구 초대
+                    </button>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed">방에 함께 참여 중인 친구들과 실시간으로 코노 셋리스트를 추가하고 함께 빌드하세요!</p>
+                
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/80 space-y-2">
+                    <div class="flex justify-between items-center text-[10px] text-slate-400 border-b border-slate-800 pb-2">
+                        <span>현재 참여 중인 방: <strong class="text-orange-400">금요일 밤 코노 원정대</strong></span>
+                        <span class="text-emerald-400"><i class="fa-solid fa-circle text-[8px] animate-pulse"></i> 3명 접속 중</span>
+                    </div>
+                    
+                    <!-- Add song to collab room -->
+                    <div class="flex gap-2 pt-1">
+                        <input type="text" id="collab-song-input" placeholder="곡 제목 또는 TJ 번호 입력..." class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-orange-400">
+                        <button onclick="addCollabSong()" class="bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition">추가</button>
+                    </div>
+                </div>
+
+                <!-- Collaborative Songs List -->
+                <div id="collab-songs-container" class="space-y-2 pt-1">
+                    <!-- Rendered via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. AI 스캐너 Tab -->
+        <section id="tab-content-scanner" class="tab-pane space-y-4 hidden">
+            <div class="tj-card p-4 rounded-2xl border border-orange-500/30 space-y-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-orange-600/30 text-orange-400 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <h2 class="font-bold text-sm text-orange-300">노래방 점수판 100점 OCR 스캔</h2>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed">노래방 화면에 나온 100점 점수판 사진을 업로드하면 AI가 곡을 즉시 인식해 플리에 담아줍니다!</p>
+                <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 hover:border-orange-400 rounded-xl p-6 cursor-pointer bg-slate-900/50 transition group">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-orange-400 mb-2 group-hover:scale-110 transition"></i>
+                    <span class="text-xs font-semibold text-slate-200">점수판 사진 업로드하기</span>
+                    <span class="text-[10px] text-slate-500 mt-1">태진(TJ) / 금영(KY) 점수 화면 지원</span>
+                    <input type="file" accept="image/*" class="hidden" onchange="handleScoreImageUpload(event)">
+                </label>
+            </div>
+
+            <!-- YouTube Extractor Box -->
+            <div class="tj-card p-4 rounded-2xl border border-amber-500/30 space-y-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-amber-600/30 text-amber-300 flex items-center justify-center text-xs">
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                    <h2 class="font-bold text-sm text-amber-300">유튜브 플리 노래 추출기</h2>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed">좋아하는 유튜브 노래방 모음이나 플레이리스트 URL을 입력하면 곡을 자동 추출합니다.</p>
+                <div class="flex gap-2">
+                    <input type="text" id="youtube-url-input" placeholder="https://www.youtube.com/watch?v=..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500">
+                    <button onclick="extractYoutubePlaylist()" class="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition shrink-0 shadow">추출</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 유저 추천 Tab -->
+        <section id="tab-content-matching" class="tab-pane space-y-4 hidden">
+            <div class="tj-card p-4 rounded-2xl border border-orange-500/30 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-orange-600/30 text-orange-400 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-users-viewfinder"></i>
+                        </div>
+                        <h2 class="font-bold text-sm text-orange-300">음악 취향 유사 유저 분석</h2>
+                    </div>
+                    <button onclick="refreshUserMatch()" class="text-[11px] text-orange-400 hover:text-orange-300 bg-orange-950/50 px-2.5 py-1 rounded-lg border border-orange-500/30 transition">
+                        <i class="fa-solid fa-rotate-right"></i> 새로고침
+                    </button>
+                </div>
+                <p class="text-[11px] text-slate-400">나와 부른 곡 셋리스트가 가장 소름 돋게 겹치는 유저들의 숨은 명곡 추천입니다.</p>
+                <div id="matching-user-container" class="space-y-2.5 pt-1">
+                    <!-- Dynamic User Matching List -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 막곡 추천 Tab (빅뱅 감성) -->
+        <section id="tab-content-ending" class="tab-pane space-y-4 hidden">
+            <div class="tj-card p-4 rounded-2xl border border-amber-500/30 space-y-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-amber-600/30 text-amber-400 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                    </div>
+                    <h2 class="font-bold text-sm text-amber-300">빅뱅 감성! 레전드 막곡 추천</h2>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed">퇴실 5분 전, 방 안의 열기를 최고조로 끌어올리고 여운 없이 깔끔하게 터뜨릴 막곡!</p>
+                <div id="ending-song-container" class="space-y-2.5 pt-1">
+                    <!-- Dynamic Ending Songs -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 노래방 정보 Tab -->
+        <section id="tab-content-karaoke" class="tab-pane space-y-4 hidden">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-xs text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <i class="fa-solid fa-coins text-yellow-400"></i> 코노 가격 & 서비스 덤 공유 보드
+                </h2>
+                <button onclick="openAddPriceModal()" class="bg-orange-600 hover:bg-orange-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold transition shadow">
+                    <i class="fa-solid fa-plus mr-1"></i> 제보하기
+                </button>
+            </div>
+            <div id="price-board-container" class="space-y-3">
+                <!-- Dynamic Price Board -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Mini Audio Player Bar -->
+    <div id="audio-player-bar" class="fixed bottom-14 w-full max-w-md bg-[#0c0e14]/95 border-t border-orange-500/30 px-4 py-2.5 flex items-center justify-between hidden z-40 backdrop-blur shadow-2xl">
+        <div class="flex items-center space-x-3 overflow-hidden">
+            <div class="w-10 h-10 rounded-xl tj-orange-gradient flex items-center justify-center shrink-0 tj-orange-glow animate-pulse">
+                <i class="fa-solid fa-music text-white text-sm"></i>
+            </div>
+            <div class="truncate">
+                <p id="player-title" class="text-xs font-bold text-white truncate">곡 제목</p>
+                <p id="player-artist" class="text-[10px] text-orange-400 truncate">아티스트 • TJ [12345]</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2 shrink-0">
+            <button onclick="togglePlayPause()" class="w-8 h-8 rounded-full bg-orange-400 text-slate-950 flex items-center justify-center font-bold text-xs transition shadow">
+                <i id="play-icon" class="fa-solid fa-pause"></i>
+            </button>
+            <button onclick="closePlayer()" class="text-slate-400 hover:text-white text-xs px-1.5 py-1">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (6 Tabs) -->
+    <footer class="w-full max-w-md bg-[#0c0e14] border-t border-slate-800/80 fixed bottom-0 z-50 grid grid-cols-6 text-center py-2 text-[9px] text-slate-400">
+        <button onclick="switchTab('highlight')" class="footer-tab text-orange-400 flex flex-col items-center gap-1 transition" data-tab="highlight">
+            <i class="fa-solid fa-headphones text-xs"></i>하이라이트
+        </button>
+        <button onclick="switchTab('collab')" class="footer-tab flex flex-col items-center gap-1 transition" data-tab="collab">
+            <i class="fa-solid fa-users-rectangle text-xs"></i>함께만들기
+        </button>
+        <button onclick="switchTab('scanner')" class="footer-tab flex flex-col items-center gap-1 transition" data-tab="scanner">
+            <i class="fa-solid fa-camera text-xs"></i>AI스캐너
+        </button>
+        <button onclick="switchTab('matching')" class="footer-tab flex flex-col items-center gap-1 transition" data-tab="matching">
+            <i class="fa-solid fa-users text-xs"></i>유저추천
+        </button>
+        <button onclick="switchTab('ending')" class="footer-tab flex flex-col items-center gap-1 transition" data-tab="ending">
+            <i class="fa-solid fa-flag text-xs"></i>막곡추천
+        </button>
+        <button onclick="switchTab('karaoke')" class="footer-tab flex flex-col items-center gap-1 transition" data-tab="karaoke">
+            <i class="fa-solid fa-store text-xs"></i>노래방정보
+        </button>
+    </footer>
+
+    <!-- 🔍 Search Modal (Lyrics & Song Search with TJ number) -->
+    <div id="search-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="tj-card w-full max-w-md rounded-2xl p-5 space-y-4 shadow-2xl border border-orange-500/40">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-sm text-orange-300 flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass"></i> 가사 및 곡명 검색
+                </h3>
+                <button onclick="closeSearchModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div class="relative">
+                <input type="text" id="song-search-input" oninput="filterSearchSongs(this.value)" placeholder="가사 한 줄, 곡 제목, 가수 입력..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-orange-400">
+            </div>
+            <div id="search-results-container" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <!-- Search results -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 👤 My Menu Drawer (아이돌 플리, 잔잔 플리 & Song details) -->
+    <div id="mymenu-drawer" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex justify-end">
+        <div class="w-85 bg-[#0c0e14] border-l border-orange-500/30 h-full p-5 space-y-6 overflow-y-auto flex flex-col justify-between shadow-2xl">
+            <div class="space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h3 class="font-bold text-sm text-orange-400 flex items-center gap-2">
+                        <i class="fa-solid fa-user-gear"></i> 마이메뉴 & 나의 플리
+                    </h3>
+                    <button onclick="toggleMyMenuDrawer(false)" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+                </div>
+
+                <!-- Playlist Share Box -->
+                <div class="tj-card p-3.5 rounded-xl space-y-2 border border-orange-500/20">
+                    <h4 class="text-xs font-bold text-orange-300">🔗 내 1분 미리듣기 플리 공유</h4>
+                    <div class="flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-700">
+                        <input type="text" readonly value="https://copley.app/share/user_992" class="bg-transparent text-[10px] text-slate-300 flex-1 outline-none">
+                        <button onclick="alert('링크가 복사되었습니다!')" class="bg-orange-600 hover:bg-orange-500 text-white text-[10px] px-2.5 py-1 rounded font-bold transition">복사</button>
+                    </div>
+                </div>
+
+                <!-- Thematic Playlists (아이돌 플리, 잔잔 플리) -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold text-orange-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-music"></i> 카테고리별 플레이리스트
+                    </h4>
+                    <div id="my-playlists-container" class="space-y-3">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+
+                <!-- Friends Following List (Concise Names) -->
+                <div class="space-y-2.5">
+                    <h4 class="text-xs font-bold text-orange-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-users"></i> 노래방 친구 팔로우
+                    </h4>
+                    <div id="friend-list-container" class="space-y-2">
+                        <!-- Friend items -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-4 text-center">
+                <p class="text-[10px] text-slate-500">코플리 (Copley) • Orange Neon Edition</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // TJ 최신 인기차트 플레이리스트 (No numbers)
+        let myPlaylist = [
+            { id: 1, title: "Drowning", artist: "WOODZ", tjNum: "83945", likes: "3.8천", duration: "1분 미리듣기", lyrics: "마지막 순간까지 너를 붙잡고 싶어..." },
+            { id: 2, title: "행복하지 말아요", artist: "MC더맥스", tjNum: "14260", likes: "2.9천", duration: "1분 미리듣기", lyrics: "혹시라도 나를 찾아올까 봐..." },
+            { id: 3, title: "나는 반딧불", artist: "황가람", tjNum: "43770", likes: "2.1천", duration: "1분 미리듣기", lyrics: "어두운 밤하늘에 홀로 남겨진..." },
+            { id: 4, title: "천상연", artist: "이창섭", tjNum: "86059", likes: "1.7천", duration: "1분 미리듣기", lyrics: "너의 손을 잡고 걷던 그 길가에..." }
+        ];
+
+        // 함께 만들기 (Collaborative room songs)
+        let collabSongs = [
+            { id: 101, title: "Super Shy", artist: "NewJeans", tjNum: "68912", addedBy: "민수" },
+            { id: 102, title: "사건의 지평선", artist: "윤하", tjNum: "5123", addedBy: "서윤" }
+        ];
+
+        // Thematic Playlists (아이돌 플리, 잔잔 플리)
+        let mySavedPlaylists = [
+            {
+                id: 'pl_1',
+                name: '✨ 아이돌 플리 (신나고 힙한 곡들)',
+                songsCount: 3,
+                songs: [
+                    { title: "Super Shy", artist: "NewJeans", tjNum: "68912" },
+                    { title: "Hype Boy", artist: "NewJeans", tjNum: "4198" },
+                    { title: "뱅뱅뱅", artist: "BIGBANG", tjNum: "43950" }
+                ]
+            },
+            {
+                id: 'pl_2',
+                name: '🌙 잔잔 플리 (감성 발라드 & 인디)',
+                songsCount: 3,
+                songs: [
+                    { title: "Drowning", artist: "WOODZ", tjNum: "83945" },
+                    { title: "천상연", artist: "이창섭", tjNum: "86059" },
+                    { title: "나는 반딧불", artist: "황가람", tjNum: "43770" }
+                ]
+            }
+        ];
+
+        let matchingUsers = [
+            { name: "쭌이", matchRate: "98%", favoriteSong: "Drowning", tjNum: "83945" },
+            { name: "서윤", matchRate: "94%", favoriteSong: "행복하지 말아요", tjNum: "14260" },
+            { name: "민수", matchRate: "89%", favoriteSong: "나는 반딧불", tjNum: "43770" }
+        ];
+
+        // 빅뱅 감성 레전드 막곡 추천
+        let endingSongs = [
+            { title: "뱅뱅뱅 (BANG BANG BANG)", artist: "BIGBANG", tjNum: "43950", reason: "모두가 자리에서 일어나 마지막 떼창과 함께 폭발적으로 불태우는 0순위 막곡!" },
+            { title: "거짓말", artist: "BIGBANG", tjNum: "4179", reason: "전주만 나와도 심장이 뛰는 국민 떼창곡으로 완벽한 여운을 남기고 퇴실!" },
+            { title: "붉은 노을", artist: "BIGBANG", tjNum: "4722", reason: "친구들과 어깨를 걸고 다 같이 합창하며 훈훈하게 마무리하기 최고!" }
+        ];
+
+        let karaokePrices = [
+            { name: "신촌 스타코인노래연습장", price: "1,000원 / 3곡", bonus: "현금 결제 시 기본 +1곡 서비스 덤 제공!", location: "신촌역 3번 출구" },
+            { name: "홍대 수노래방 프리미엄", price: "5,000원 / 30분", bonus: "시간제 결제 시 음료수 캔 무료 서비스", location: "홍대 상상마당 근처" },
+            { name: "강남 코인노래연습장", price: "1,000원 / 4곡", bonus: "계좌이체/현금 시 무조건 +1곡 추가 덤!", location: "강남역 11번 출구" }
+        ];
+
+        let friends = [
+            { name: "도현", status: "신촌 스타코노에서 열창 중 🎤" },
+            { name: "지민", status: "방금 100점 인증샷 업로드! 📸" }
+        ];
+
+        let isPlaying = false;
+        let currentPlaying = null;
+
+        window.onload = function() {
+            renderPlaylist();
+            renderCollabSongs();
+            renderMyPlaylists();
+            renderMatchingUsers();
+            renderEndingSongs();
+            renderPriceBoard();
+            renderFriends();
+            renderSearchSongs(myPlaylist);
+        };
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`tab-content-${tabName}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-3.5 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition";
+            });
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn px-3.5 py-1.5 rounded-lg font-bold text-orange-400 bg-orange-600/20 border border-orange-500/40 transition";
+            }
+
+            document.querySelectorAll('.footer-tab').forEach(btn => {
+                btn.classList.remove('text-orange-400');
+                if (btn.dataset.tab === tabName) btn.classList.add('text-orange-400');
+            });
+        }
+
+        // Render Playlist (Clean layout without numbers)
+        function renderPlaylist() {
+            const container = document.getElementById('playlist-container');
+            if (!container) return;
+            container.innerHTML = myPlaylist.map(song => `
+                <div class="tj-card p-3.5 rounded-xl flex items-center justify-between border border-slate-700/60 hover:border-orange-500/50 transition">
+                    <div class="flex items-center space-x-3 cursor-pointer flex-1 overflow-hidden" onclick="playSong('${song.title}', '${song.artist}', '${song.tjNum}')">
+                        <div class="w-10 h-10 rounded-lg bg-orange-600/20 text-orange-400 flex items-center justify-center font-bold text-xs border border-orange-500/30 shrink-0">
+                            TJ ${song.tjNum}
+                        </div>
+                        <div class="truncate">
+                            <h3 class="font-bold text-xs text-white truncate">${song.title}</h3>
+                            <p class="text-[10px] text-slate-400 truncate">${song.artist} • <span class="text-orange-400 font-semibold">${song.duration}</span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <span class="text-[10px] text-slate-400"><i class="fa-solid fa-heart text-amber-500"></i> ${song.likes}</span>
+                        <button onclick="playSong('${song.title}', '${song.artist}', '${song.tjNum}')" class="w-8 h-8 rounded-full bg-orange-400/20 text-orange-400 hover:bg-orange-400 hover:text-slate-950 flex items-center justify-center transition">
+                            <i class="fa-solid fa-play text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Collaborative Room Songs
+        function renderCollabSongs() {
+            const container = document.getElementById('collab-songs-container');
+            if (!container) return;
+            if (collabSongs.length === 0) {
+                container.innerHTML = `<p class="text-center text-[11px] text-slate-500 py-4">협업 방에 추가된 곡이 없습니다. 첫 곡을 추가해보세요!</p>`;
+                return;
+            }
+            container.innerHTML = collabSongs.map(song => `
+                <div class="bg-slate-900 p-2.5 rounded-xl flex items-center justify-between border border-slate-700/80">
+                    <div class="flex items-center space-x-2.5 overflow-hidden cursor-pointer" onclick="playSong('${song.title}', '${song.artist}', '${song.tjNum}')">
+                        <span class="text-[10px] bg-orange-600/30 text-orange-400 px-2 py-0.5 rounded font-mono shrink-0">TJ ${song.tjNum}</span>
+                        <div class="truncate">
+                            <p class="font-bold text-xs text-white truncate">${song.title} <span class="text-slate-400 font-normal">(${song.artist})</span></p>
+                            <p class="text-[9px] text-slate-500">추가한 사람: <span class="text-orange-300">${song.addedBy}</span></p>
+                        </div>
+                    </div>
+                    <button onclick="playSong('${song.title}', '${song.artist}', '${song.tjNum}')" class="w-7 h-7 rounded-full bg-orange-500/20 text-orange-400 hover:bg-orange-500 hover:text-slate-950 flex items-center justify-center transition shrink-0">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addCollabSong() {
+            const input = document.getElementById('collab-song-input');
+            const val = input.value.trim();
+            if (!val) {
+                alert('추가할 곡명이나 TJ 번호를 입력해주세요!');
+                return;
+            }
+            collabSongs.unshift({
+                id: Date.now(),
+                title: val,
+                artist: "직접 추가된 곡",
+                tjNum: Math.floor(10000 + Math.random() * 80000).toString(),
+                addedBy: "나"
+            });
+            renderCollabSongs();
+            input.value = '';
+            alert('협업 플리에 곡이 실시간으로 추가되었습니다!');
+        }
+
+        function shareCollabLink() {
+            alert('협업 방 초대 링크가 복사되었습니다! 친구들에게 공유하여 함께 플리를 만들어보세요.');
+        }
+
+        // Render Thematic Playlists in My Menu
+        function renderMyPlaylists() {
+            const container = document.getElementById('my-playlists-container');
+            if (!container) return;
+            container.innerHTML = mySavedPlaylists.map(pl => `
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-xs text-orange-300">${pl.name}</span>
+                        <span class="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded font-bold">${pl.songsCount}곡 수록</span>
+                    </div>
+                    <div class="space-y-1 pt-1 border-t border-slate-800">
+                        ${pl.songs.map(s => `
+                            <div class="flex justify-between items-center text-[11px] py-1 px-2 rounded hover:bg-slate-800 cursor-pointer transition" onclick="playSong('${s.title}', '${s.artist}', '${s.tjNum}'); toggleMyMenuDrawer(false);">
+                                <span class="text-slate-200 truncate pr-2">🎵 ${s.title} <span class="text-slate-400 text-[10px]">(${s.artist})</span></span>
+                                <span class="text-orange-400 font-mono text-[10px] shrink-0">TJ ${s.tjNum}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function playSong(title, artist, tjNum) {
+            isPlaying = true;
+            currentPlaying = { title, artist, tjNum };
+            document.getElementById('audio-player-bar').classList.remove('hidden');
+            document.getElementById('player-title').innerText = title;
+            document.getElementById('player-artist').innerText = `${artist} • TJ [${tjNum}] (1분 미리듣기)`;
+            document.getElementById('play-icon').className = "fa-solid fa-pause";
+        }
+
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            document.getElementById('play-icon').className = isPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
+        }
+
+        function closePlayer() {
+            isPlaying = false;
+            document.getElementById('audio-player-bar').classList.add('hidden');
+        }
+
+        function toggleOfflineMode() {
+            const badge = document.getElementById('offline-badge');
+            if (badge.classList.contains('bg-emerald-500/20')) {
+                badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/40 transition";
+                badge.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i> 오프라인 저장됨 (Data Free)`;
+                alert('플레이리스트 오프라인 캐시 저장 완료! 데이터가 터지지 않는 지하 노래방에서도 끊김 없이 재생됩니다.');
+            } else {
+                badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 transition";
+                badge.innerHTML = `<i class="fa-solid fa-wifi"></i> Data Free Ready`;
+            }
+        }
+
+        function handleScoreImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                alert(`점수판 사진("${file.name}") 업로드 성공! Gemini AI가 100점 화면을 분석해 '윤하 - 사건의 지평선 (TJ 5123)'을 1분 플리에 추가했습니다.`);
+                myPlaylist.unshift({ id: Date.now(), title: "사건의 지평선", artist: "윤하", tjNum: "5123", likes: "3.1천", duration: "1분 미리듣기", lyrics: "고마웠던 날들..." });
+                renderPlaylist();
+                switchTab('highlight');
+            }
+        }
+
+        function extractYoutubePlaylist() {
+            const urlInput = document.getElementById('youtube-url-input');
+            if (!urlInput.value.trim()) {
+                alert('유튜브 플레이리스트 또는 영상 URL을 입력해주세요!');
+                return;
+            }
+            alert('유튜브 플리 분석 완료! 수록된 곡들이 1분 미리듣기 플리에 성공적으로 추가되었습니다.');
+            myPlaylist.unshift({ id: Date.now(), title: "Hype Boy", artist: "NewJeans", tjNum: "4198", likes: "4.5천", duration: "1분 미리듣기", lyrics: "Cause I know you love it..." });
+            renderPlaylist();
+            urlInput.value = '';
+            switchTab('highlight');
+        }
+
+        function renderMatchingUsers() {
+            const container = document.getElementById('matching-user-container');
+            if (!container) return;
+            container.innerHTML = matchingUsers.map(user => `
+                <div class="tj-card p-3 rounded-xl flex items-center justify-between border border-slate-700/80">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-white">${user.name}</span>
+                            <span class="bg-orange-500/20 text-orange-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-orange-500/30">일치율 ${user.matchRate}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1">추천 Pick: <span class="text-white font-medium">${user.favoriteSong}</span> (TJ ${user.tjNum})</p>
+                    </div>
+                    <button onclick="playSong('${user.favoriteSong}', '추천 아티스트', '${user.tjNum}')" class="bg-orange-400 hover:bg-orange-300 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition shadow shrink-0">
+                        듣기
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function refreshUserMatch() {
+            alert("동일한 노래를 즐겨 찾는 유저들의 데이터를 재분석하여 새로운 맞춤 추천 곡들을 갱신했습니다!");
+        }
+
+        function renderEndingSongs() {
+            const container = document.getElementById('ending-song-container');
+            if (!container) return;
+            container.innerHTML = endingSongs.map(song => `
+                <div class="tj-card p-3.5 rounded-xl border border-amber-500/30 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-amber-300">${song.title}</span>
+                            <span class="text-[10px] text-slate-400">${song.artist} • TJ ${song.tjNum}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 mt-1">🔥 ${song.reason}</p>
+                    </div>
+                    <button onclick="playSong('${song.title}', '${song.artist}', '${song.tjNum}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-1.5 rounded-lg transition shrink-0 shadow">
+                        재생
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderPriceBoard() {
+            const container = document.getElementById('price-board-container');
+            if (!container) return;
+            container.innerHTML = karaokePrices.map(item => `
+                <div class="tj-card p-3.5 rounded-xl border border-yellow-500/30 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-xs text-white">${item.name}</h3>
+                        <span class="text-xs font-black text-amber-400">${item.price}</span>
+                    </div>
+                    <p class="text-[11px] text-orange-400"><i class="fa-solid fa-gift mr-1"></i> ${item.bonus}</p>
+                    <p class="text-[10px] text-slate-400"><i class="fa-solid fa-location-dot mr-1"></i> ${item.location}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderFriends() {
+            const container = document.getElementById('friend-list-container');
+            if (!container) return;
+            container.innerHTML = friends.map((f, idx) => `
+                <div class="flex items-center justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-700/80">
+                    <div>
+                        <p class="font-bold text-xs text-white">${f.name}</p>
+                        <p class="text-[10px] text-slate-400">${f.status}</p>
+                    </div>
+                    <span class="text-[10px] bg-orange-500/20 text-orange-400 px-2.5 py-1 rounded-full font-bold">팔로잉</span>
+                </div>
+            `).join('');
+        }
+
+        function openSearchModal() { document.getElementById('search-modal').classList.remove('hidden'); }
+        function closeSearchModal() { document.getElementById('search-modal').classList.add('hidden'); }
+        function toggleMyMenuDrawer(show) {
+            const drawer = document.getElementById('mymenu-drawer');
+            if (show) drawer.classList.remove('hidden');
+            else drawer.classList.add('hidden');
+        }
+
+        function filterSearchSongs(query) {
+            const filtered = myPlaylist.filter(s => 
+                s.title.toLowerCase().includes(query.toLowerCase()) || 
+                s.artist.toLowerCase().includes(query.toLowerCase()) ||
+                s.lyrics.toLowerCase().includes(query.toLowerCase())
+            );
+            renderSearchSongs(filtered);
+        }
+
+        function renderSearchSongs(songs) {
+            const container = document.getElementById('search-results-container');
+            if (!container) return;
+            if (songs.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">검색 결과가 없습니다. (가사 한 줄이나 곡명으로 검색해보세요!)</p>`;
+                return;
+            }
+            container.innerHTML = songs.map(song => `
+                <div class="bg-slate-900 p-3 rounded-xl flex items-center justify-between border border-slate-700/80 hover:border-orange-400 transition">
+                    <div class="cursor-pointer flex-1 overflow-hidden pr-2" onclick="playSong('${song.title}', '${song.artist}', '${song.tjNum}'); closeSearchModal();">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-white truncate">${song.title}</span>
+                            <span class="text-[10px] bg-orange-600/30 text-orange-400 px-2 py-0.5 rounded font-bold shrink-0">TJ ${song.tjNum}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-0.5 truncate">${song.artist} • 가사: "${song.lyrics}"</p>
+                    </div>
+                    <button onclick="playSong('${song.title}', '${song.artist}', '${song.tjNum}'); closeSearchModal();" class="bg-orange-400 hover:bg-orange-300 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition shrink-0 shadow">
+                        듣기
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function openAddPriceModal() {
+            const name = prompt("노래방 이름이나 지역을 입력하세요 (예: 건대 스타코인노래연습장):");
+            if (!name) return;
+            const price = prompt("가격 정보를 입력하세요 (예: 1,000원 / 3곡 또는 5,000원 / 30분):");
+            const bonus = prompt("사장님이 주시는 서비스 덤 정보를 입력하세요 (예: 현금 결제 시 +1곡 추가 덤):");
+            if (name && price) {
+                karaokePrices.unshift({ name, price, bonus: bonus || "정보 없음", location: "사용자 제보 지역" });
+                renderPriceBoard();
+                alert('소중한 가격 및 서비스 정보가 공유 보드에 성공적으로 등록되었습니다!');
+            }
+        }
+    </script>
+</body>
+</html>
